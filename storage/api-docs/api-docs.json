@@ -1,0 +1,1083 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Weart Api",
+        "description": "Weart Api",
+        "contact": {
+            "name": "Gilles",
+            "email": "gillesakakpo01@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Se connecter",
+                "operationId": "authLogin",
+                "requestBody": {
+                    "description": "Champs d'authentification",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "utilisateur@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "motdepasse"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "Compte bloqué",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validation"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Se déconnecter",
+                "operationId": "authLogout",
+                "responses": {
+                    "200": {
+                        "description": "Déconnexion réussie"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Obtenir les informations de l'utilisateur authentifié",
+                "operationId": "authMe",
+                "responses": {
+                    "200": {
+                        "description": "Récupération réussie des informations de l'utilisateur authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le token Bearer n'est pas valide."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Inscription d'un nouvel utilisateur",
+                "operationId": "authRegister",
+                "requestBody": {
+                    "description": "Champs d'inscription d'un nouvel utilisateur",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "username": {
+                                        "description": "Username unique de l'utilisateur",
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "description": "Adresse email unique de l'utilisateur",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "utilisateur@example.com"
+                                    },
+                                    "password": {
+                                        "description": "Mot de passe de l'utilisateur (min. 8 caractères)",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "motdepasse"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inscription réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "votre_access_token"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erreur de validations"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "example": {
+                                                "firstName": [
+                                                    "Le champ firstName est requis."
+                                                ],
+                                                "lastName": [
+                                                    "Le champ lastName est requis."
+                                                ],
+                                                "username": [
+                                                    "Le champ username est requis.",
+                                                    "Le champ username est déjà utilisé."
+                                                ],
+                                                "email": [
+                                                    "Le champ email est requis.",
+                                                    "Le champ email est déjà utilisé."
+                                                ],
+                                                "password": [
+                                                    "Le champ password est requis."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/refreshToken": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Actualiser le jeton d'authentification de l'utilisateur",
+                "operationId": "authRefreshToken",
+                "responses": {
+                    "200": {
+                        "description": "Jeton d'authentification actualisé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "description": "Le nouveau jeton d'authentification actualisé",
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "description": "Type de jeton (Bearer)",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Accès non autorisé (token d'authentification manquant ou invalide)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Le token Bearer n'est pas valide",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/forgotPassword": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Demander un code de reinitialisation de mot de passe",
+                "operationId": "authForgotPassword",
+                "responses": {
+                    "200": {
+                        "description": "Code de reinitialisation envoyé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Nous vous avons envoyé un code de réinitialisation!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/updatePassword": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reinitialisation de mot de passe",
+                "operationId": "authUpdatePassword",
+                "requestBody": {
+                    "description": "Champs pour reinitialiser le mot de passe",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "4568"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "motdepasse"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mot de passe reinitialisé!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Mot de passe reinitialisé!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Erreurs de validations!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Code invalide",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Code invalide!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/changePassword": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Changer le mot de passe",
+                "operationId": "authChangePassword",
+                "requestBody": {
+                    "description": "Champs pour changer le mot de passe",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "old_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "ancienmotdepasse"
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "nouveaumotdepasse"
+                                    },
+                                    "new_password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "nouveaumotdepasse"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mot de passe changé avec succès!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Mot de passe changé avec succès!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Mot de passe actuel incorrect",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Mot de passe actuel incorrect!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Erreurs de validations!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/updateProfile": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Mettre à jour le profil de l'utilisateur",
+                "operationId": "authUpdateProfile",
+                "requestBody": {
+                    "description": "Champs pour mettre à jour le profil de l'utilisateur",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "description": "Adresse email unique de l'utilisateur",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": ""
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "France"
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Je suis un développeur web"
+                                    },
+                                    "photo": {
+                                        "description": "Photo de profil de l'utilisateur",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profil mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profil mis à jour avec succès"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Erreurs de validations!",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Category": {
+                "title": "Category",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Channel": {
+                "title": "Channel",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "community_id": {
+                        "type": "integer"
+                    },
+                    "community": {
+                        "$ref": "#/components/schemas/Community"
+                    }
+                },
+                "type": "object"
+            },
+            "Comment": {
+                "title": "Comment",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "replies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Comment"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CommunityMember": {
+                "title": "CommunityMember",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "community": {
+                        "$ref": "#/components/schemas/Community"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "CommunityQuestionAnswer": {
+                "title": "CommunityQuestionAnswer",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "response": {
+                        "type": "string"
+                    },
+                    "question": {
+                        "$ref": "#/components/schemas/CommunityQuestion"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "CommunityQuestion": {
+                "title": "CommunityQuestion",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "community": {
+                        "$ref": "#/components/schemas/Community"
+                    }
+                },
+                "type": "object"
+            },
+            "Community": {
+                "title": "Community",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "images": {
+                        "type": "string"
+                    },
+                    "video": {
+                        "type": "string"
+                    },
+                    "isPrivate": {
+                        "type": "boolean"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "plan": {
+                        "$ref": "#/components/schemas/Plan"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/Category"
+                    },
+                    "creator": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "CommunityStartMessage": {
+                "title": "CommunityStartMessage",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "community": {
+                        "$ref": "#/components/schemas/Community"
+                    }
+                },
+                "type": "object"
+            },
+            "CommunitySubscription": {
+                "title": "CommunitySubscription",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "next_due": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "community": {
+                        "$ref": "#/components/schemas/Community"
+                    },
+                    "plan": {
+                        "$ref": "#/components/schemas/Plan"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "Course": {
+                "title": "Course",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "min_level": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Event": {
+                "title": "Event",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "zoom": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Lesson": {
+                "title": "Lesson",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "video": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Message": {
+                "title": "Message",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "sender": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "receiver": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "Notification": {
+                "title": "Notification",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "read": {
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Payment": {
+                "title": "Payment",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "course": {
+                        "$ref": "#/components/schemas/Course"
+                    }
+                },
+                "type": "object"
+            },
+            "Plan": {
+                "title": "Plan",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "maxMembers": {
+                        "type": "integer"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "Post": {
+                "title": "Post",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "channel": {
+                        "$ref": "#/components/schemas/Channel"
+                    }
+                },
+                "type": "object"
+            },
+            "Section": {
+                "title": "Section",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "course": {
+                        "$ref": "#/components/schemas/Course"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "referral": {
+                        "type": "string"
+                    },
+                    "level": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "lastSeen": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "isAdmin": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "Withdraw": {
+                "title": "Withdraw",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}

@@ -1,0 +1,120 @@
+SSR
+Redux
+kubernetes 
+CI/CD
+Prometeus
+Grafana
+
+Migrations --done
+Models -- done
+Controllers
+Resource
+Request
+Apis -- done
+docs
+
+Fonctionnalités : 
+
+Acteurs : Utilisateur , Membre , Modérateur , Propriétaire , Administrateur
+
+Liste des communautés
+Contributions des membres par communauté
+Rechercher une communauter
+Gérer mes communautés (Créer ,modifier , supprimer)
+Demander a rejoindre une communauté
+Poster/ Commenter/ Liker dans une catégorie d"une communauté
+Gérer mon profil
+Payer un abonnement pour une communauté
+Quitter une commaunauté
+Gérer des formations dans ma communauté 
+Acheter une formation dans une communauté
+Suivre mes formations payées
+Gérer les evenements dans ma commmunauté
+Programmer un evenement dans ma communauté
+Inviter un membre dans une communauté
+Chatter avec des membres en direct
+Leaderbords d'une communauté 
+Rang d'un membre dans une communauté
+Demander un reversement du CA de ma communauté
+Demander un reversement de mes gains avec le système de parrainage 
+
+Propriétaire : 
+
+Ajouter un modérateur
+
+Modérer les posts/commentaires
+Bannir un membre
+
+
+Administrateur :
+
+Statistiques globales de la plateforme
+Gérer les utilisateurs
+Gérer les catégories de communauté
+Gérer les communautés
+Voir les membres d'une communauté
+Voir les abonnements aux communautés
+Voir les abonnements des propriétaires
+Valider/Refuser les demandes de reversements 
+
+
+abonnements 
+
+100 : 49€
+1000 : 99€
+illimité  : 149€
+
+stripe id : 
+user,payments,community_subscriptions
+
+members rom
+
+tables : 
+
+	users(id,firstName,lastName,username,email,bio,level,country,referral,isActive,lastSeen,isAdmin)   -- done
+	
+	categories(id,name,icon) -- done
+	
+	plans(id,name,description,amount,maxMembers,isActive) -- done 
+	
+	communities(id,name,description,slug,isPrivate,planId,categoryId,creatorId,images,video,isActive)   -- done
+	
+	channels(id,name,communityId,isActive)  -- done
+	
+	posts(id,title,content,type,authorId,channelId) -- done
+	
+	comments(id,content,postId,commentId,authorId) -- done
+	
+	likes(id,postId,commentId,authorId) -- done
+	
+	watches(id,postId,authorId) -- done
+	
+	courses(id,title,description,amount,minLevel,communityId,isActive) -- done
+	
+	sections(id,title,order,courseId) -- done
+	
+	lessons(id,title,video,sectionId) -- done
+	
+	events(id,title,description,zoom,date,communityId) -- done
+	
+	community_members(id,communityId,userId,role,isActive) -- done
+	
+	community_start_messages(id,communityId,message) -- done
+	 	
+	community_questions(id,question,type,isActive,communityId) -- done
+	
+	community_question_anwers(id,questionId,userId,response) -- done
+	
+	community_subscriptions(id,userId,communityId,planId,status,nextDue) -- done
+	
+	withdraws(id,userId,amount,status) -- done
+	
+	payments(id,userId,amount,status,courseId) -- done
+	
+	notifications(id,title,content,userId,read) -- done
+	
+	messages(id,message,senderId,receiverId) -- done
+	
+
+ 
+

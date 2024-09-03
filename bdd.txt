@@ -1,0 +1,42 @@
+users(id, first_name,last_name, email,telephone, address,birth_date,exp_years,linkedin ,role, password, remember_token, )
+role(id,label,description) // admin,talent,consultant,contact,recruiter,marketer
+user_languages(id,user_id,level,label)
+
+resumes(id,user_id,pseudo,description)
+
+user_metas(id,user_id,type,label,description) // type can be certification/expertise/mskill/tskill/interest  -- description nullable
+user_formations(id,user_id,label,start_date,end_date,address) 
+user_experiences(id,user_id,entreprise,title,project,start_date, end_date,mission,envs) 
+resume_user_metas(id,resume_id,user_meta_id)
+resume_user_formations(id,resume_id,user_formation_id)
+resume_user_experiences(id,resume_id,user_experience_id)
+
+
+user_experience_metas(id,user_experience_id,type,label,description) // type can be mission/environment -- description nullable
+
+categories(id,name,description)
+
+entreprises(id,name,domain,linkedin,adress,telephone,email,website)
+profiles(id,first_name,last_name,email,entreprise_id,title,linkedin,email,telephone)
+
+profile_categories(id,profile_id,category_id)
+contacts(id,name,first_name,last_name,entreprise_id)
+needs(id,label,description,category_id)
+
+user,recruteru,candidat
+
+offers(id,title,description,experience_years,category,country,city,can_remote?,type,image,industry) type CDD or CDI
+clients(name,website,domain,country,city,adress,contact,telephone,email)
+candidats(id,first_name,last_name,email,email_s,telephone,telephone_s,city,country,linkedin,adress,last_situation,entreprise_id,current_client_id,contrat_type,contrat_start,contrat_end,tjm,sal_net,sal_brut,status_ano,status,comment,)
+
+projects(id,title,description,client,status) 
+timesheets(id,user_id,project_id,status,comment,month,year)
+timesheet_entries(id,timesheet_id,date,work_duration)
+
+role list = admin,candidat,recruiters
+
+
+
+
+
+
