@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfilResource; 
+use App\Http\Resources\ProfilTagResource; 
 use App\Models\Profil;
+use App\Models\ProfilTag;
 use App\Models\Entreprise;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -13,6 +15,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Http;
+
+// log facade
+use Illuminate\Support\Facades\Log; 
+
+
 
  
 class ProfilController extends Controller
@@ -108,6 +115,7 @@ class ProfilController extends Controller
             'country' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:255',
             'about' => 'nullable|string',
+            'tags' => 'nullable|string',
              
         ], $this->customMessages);
         
@@ -117,8 +125,10 @@ class ProfilController extends Controller
             return response()->json(array('message' => $errors->first(), 'data' => $errors), 422);
         }
 
-            //    fill the request data
-        $profil->fill($request->all());
+        
+        //    fill the request data
+        $profil->fill($validator->validated());
+
         $profil->save();
 
         return response()->json(array('message' => __("Profil modifié"), 'data' => new ProfilResource($profil)), 200);
@@ -185,14 +195,39 @@ class ProfilController extends Controller
     public function search(Request $request)
     {
         $search = $request->search;
-        $entreprises = Profil::where('first_name', 'like', '%'.$search.'%')
-            ->orWhere('last_name', 'like', '%'.$search.'%')
-            ->orWhere('telephone', 'like', '%'.$search.'%')
-            ->orWhere('adress', 'like', '%'.$search.'%')
-            ->orWhere('email', 'like', '%'.$search.'%')
-            ->orWhere('linkedin', 'like', '%'.$search.'%')
-            ->paginate(10);
-        return ProfilResource::collection($entreprises);
+
+        $tags = $request->tags;
+
+      
+       // Requête de base pour la recherche de profils
+        $profils = Profil::query();
+
+        // Vérifie si une recherche a été effectuée
+        if ($search) {
+            $profils->where(function($query) use ($search) {
+                $query->where('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('telephone', 'like', '%' . $search . '%')
+                    ->orWhere('adress', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('linkedin', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Vérifie si des tags ont été fournis
+        if ($tags && is_array($tags)) {
+            $profils->where(function($query) use ($tags) {
+                foreach ($tags as $tag) {
+                    $query->orWhere('tags', 'like', '%' . $tag . '%');
+                }
+            });
+        }
+
+        // Pagination des résultats
+        $profils = $profils->paginate(10);
+
+        // Retourne la collection de profils paginée
+        return ProfilResource::collection($profils);
     }
 
     // check if profil exists by name
@@ -419,6 +454,47 @@ class ProfilController extends Controller
         }
         return response()->json(array('total_profils' => $total_profils,'total_entreprises'=>count($entreprises)), 200);
     }
+    // enrich with contactout
+    public function enrichProfilWithContactOut($id){
+        $profil = Profil::find($id);
+
+        if (!$profil) {
+            return response()->json(array('message' => __("Profil introuvable")), 404);
+        }
+        $linkedinUrl = $profil->linkedin;
+
+        $data = $this->callContactApi($linkedinUrl);
+
+        if(!$data){
+            return response()->json(array('message' => __("Profil non enrichi") ,'data'=>$data), 502);
+        } 
+
+        $profile_data = $data['profile'];
+
+        $phone = isset($profile_data['phones']) && count($profile_data['phones']) >0 ? $profile_data['phones'][0] : '';
+        $email = isset($profile_data['email']) && count($profile_data['email']) >0 ? $profile_data['email'][0] : '';
+
+        if($profil->email){
+            $profil->email_two = $email;
+        }else{
+            $profil->email = $email;
+        }
+
+        if($profil->telephone){
+            $profil->telephone_two = $phone;
+        }else{
+            $profil->telephone = $phone;
+        }
+
+        $profil->enrich_status = 'enriched';
+        $profil->is_enrich_cout = true;
+        $profil->cout_data = json_encode($data['profile']);
+        $profil->save();
+
+        return response()->json(array('message' => __("Profil enrichi"),'data'=>$profile_data), 200);
+
+
+    }
 
     // enrichProfil id
     public function enrichProfil($id){
@@ -434,38 +510,75 @@ class ProfilController extends Controller
 
         if($can_enrich){
             $data = $this->callKasprApi($name,$profile_id);
-            if($data){
-                $profile_data = $data['profile'];
-                $phone = '';
-                if(!empty($profile_data['phones'])){
-                    $phone = $profile_data['starryPhone'] ?? '';
-                }
 
-                $email = $profile_data['starryWorkEmail'] ?? '';
+            if(!$data){
+                // log
+                Log::error('Profil enrichi - kaspr no data found');
+                return response()->json(array('message' => __("Profil non enrichi") ,'data'=>$data), 502);
+            } 
 
-                $company = $profile_data['company'] ?? '';
+            $data = json_decode($data, true);
 
-                $domain = $company['domains'][0] ?? '';
-                $company_name = $company['name'] ?? '';
-                $website = $company['companyPageUrl'] ?? '';
-
-                $entreprise_id = $this->get_entreprise_id($company_name,$domain,$website);
-                if($entreprise_id){
-                    $profil->entreprise_id = $entreprise_id;
-                }
-                $profil->email = $email;
-                $profil->telephone = $phone;
-                $profil->enrich_status = 'enriched';
-                $profil->save();
-                return response()->json(array('message' => __("Profil enrichi"),'data'=>$profile_data), 200);
+            $profile_data = $data['profile'];
+            $phone = '';
+            if(!empty($profile_data['phones'])){
+                $phone = $profile_data['starryPhone'] ?? '';
             }
 
-            return response()->json(array('message' => __("Profil non enrichi") ,'data'=>$data), 200);
+            $phone_two = isset($profile_data['phones']) && count($profile_data['phones']) >1 ? $profile_data['phones'][1] : '';
+
+            $email = $profile_data['starryWorkEmail'] ?? '';
+            $email_two = isset($profile_data['professionalEmails']) && count($profile_data['professionalEmails']) >1 ? $profile_data['professionalEmails'][1] : '';
+
+            $company = $profile_data['company'] ?? '';
+
+            $domain = $company['domains'][0] ?? '';
+            $company_name = $company['name'] ?? '';
+            $website = $company['companyPageUrl'] ?? '';
+
+            $entreprise_id = $this->get_entreprise_id($company_name,$domain,$website);
+            if($entreprise_id){
+                $profil->entreprise_id = $entreprise_id;
+            }
+            $profil->email = $email;
+            $profil->email_two = $email_two;
+            $profil->telephone = $phone;
+            $profil->telephone_two = $phone_two;
+            $profil->enrich_status = 'enriched';
+            $profil->kaspr_data = json_encode($data['profile']);
+            $profil->save();
+            return response()->json(array('message' => __("Profil enrichi"),'data'=>$profile_data), 200);
+
         }
 
-        return response()->json(array('message' => __("Profil non enrichi")), 422);
+        return response()->json(array('message' => __("Profil non enrichi")), 502);
 
     
+    }
+
+    public function callContactApi($linkedinUrl)
+    {
+        // URL de l'API
+        $url = "https://api.contactout.com/v1/people/linkedin?include_phone=true&email_type=work&profile=".$linkedinUrl;
+
+        // Récupérer le bearer token depuis le fichier .env
+        $token = 'C2QrWaFyJQ86Dx0XlhBqmoyW';
+
+        // Effectuer la requête POST avec le bearer token
+        $response = Http::withHeaders([
+                        'token' => $token,
+                    ])
+                    ->get($url);
+
+        // Vérifier si la requête a réussi
+        if ($response->successful()) {
+            // Retourner les données de la réponse
+            return $response->json();
+        } else {
+            // response message
+            Log::error('Profil enrichi - Contact api error');
+            return false;
+        }
     }
 
     public function callKasprApi($name,$profile_id)
@@ -480,6 +593,7 @@ class ProfilController extends Controller
         $body = [
             "id" => $profile_id,
             "name" => $name,
+            "isPhoneRequired"=>true,
             "dataToGet" => [
                 "phone",
                 "workEmail",
@@ -489,17 +603,22 @@ class ProfilController extends Controller
 
         // Effectuer la requête POST avec le bearer token
         $response = Http::withToken($token)
-                    ->withHeaders([
-                        'accept-version' => 'v2.0',
-                    ])
-                    ->post($url, $body);
+            ->withHeaders(['accept-version' => 'v2.0'])
+            ->post($url, $body);
+
+        
+        // log response
+        $body = $response->body();
 
         // Vérifier si la requête a réussi
         if ($response->successful()) {
-            // Retourner les données de la réponse
-            return $response->json();
+            // log response message
+            Log::info('Profil enrichi - kaspr api response - '.json_encode($body));
+            return $body;
         } else {
-          return false;
+            // log response message
+            Log::error('Profil enrichi - kaspr api error - '.json_encode($body));
+            return false;
         }
     }
 
@@ -575,7 +694,96 @@ class ProfilController extends Controller
         return response()->json(array('message' => __("Profil non enrichi")), 422);
     }
 
+    // create a new tag 
+    public function createTag(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:10|unique:profil_tags,name',
+        ],  $this->customMessages);
 
+        $errors = $validator->errors();
+
+        if ($errors->count()) {
+            return response()->json(array('message' => $errors->first(), 'data' => $errors), 422);
+        }
+
+        $color = $this->get_random_color();
+
+        $tag = ProfilTag::create([
+            'name' => $request['name'],
+            'color' => $color,
+        ]);
+
+        return response()->json(array('message' => __("Tag ajoutée"), 'data' => new ProfilTagResource($tag)), 201);
+    }
+    // get all tags
+    public function getTags()
+    {
+        $tags = ProfilTag::all();
+        return ProfilTagResource::collection($tags);
+    }
+
+    // update a tag 
+    public function updateTag(Request $request, $id)
+    {
+        $tag = ProfilTag::find($id);
+
+        if(!$tag){
+            return response()->json(array('message' => __("Tag introuvable")), 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:10|unique:profil_tags,name',
+        ],  $this->customMessages);
+
+        $errors = $validator->errors();
+
+        if ($errors->count()) {
+            return response()->json(array('message' => $errors->first(), 'data' => $errors), 422);
+        }
+
+        $tag->update([
+            'name' => $request['name'],
+        ]);
+
+        return response()->json(array('message' => __("Tag modifiée"), 'data' => new ProfilTagResource($tag)), 200);
+    }
+
+    public function get_random_color(){
+        $colors = [
+            'red' ,
+            'green' ,
+            'blue' ,
+            'yellow' ,
+            'orange' ,
+            'purple' ,
+            'pink' ,
+            'black' ,
+            'gray' ,
+        ];
+
+
+        $random = rand(0, count($colors) - 1);
+        $color = $colors[$random];
+        return $color;
+    }
+
+    // delete a tag 
+    public function deleteTag($id)
+    {
+        $tag = ProfilTag::find($id);
+        if(!$tag){
+            return response()->json(array('message' => __("Tag introuvable")), 404);
+        }
+
+        $tag->delete();
+
+        return response()->json(array('message' => __("Tag supprimée")), 200);
+    }
+        
+
+
+            
     public function verifyEmail($email) {
         // Get the domain of the email
         list($user, $domain) = explode('@', $email);
@@ -631,6 +839,14 @@ class ProfilController extends Controller
         }
 
         return false;
+    }
+
+
+    // getProfilsByTags
+    public function getProfilsByTags($tag)
+    {
+        $profils = Profil::where('tags', 'like', '%'.$tag.'%')->get();
+        return ProfilResource::collection($profils);
     }
 
     

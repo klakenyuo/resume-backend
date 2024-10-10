@@ -12,7 +12,7 @@ class TimesheetEntryProjectResource extends JsonResource
             'id' => $this->id,
             'project_id' => $this->project_id,
             'work_duration' => $this->work_duration,
-            'project' => New ProjectResource($this->project),
+            'project' => New ProjectResourceLite($this->project),
             'timesheet_entry_id' => $this->timesheet_entry_id,
             'can_effective' => $this->can_effective(),  
         ];  

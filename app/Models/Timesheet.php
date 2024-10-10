@@ -36,7 +36,9 @@ class Timesheet extends Model
     public function getTotalWorkDurationDayAttribute()
     {
         $duration = $this->total_work_duration;
-        $duration = round($duration / 16);
+        $duration = $duration / 16;
+        // round to 2 decimals
+        $duration = round($duration, 2);
         return $duration;
     }
 

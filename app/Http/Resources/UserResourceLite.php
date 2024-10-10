@@ -20,6 +20,7 @@ class UserResourceLite extends JsonResource
             'photoImg' => $this->photoImg,
             'isActive' => $this->isActive,
             'projects'=> ProjectResourceLite::collection($this->projects),
+            'is_login_office' => $this->is_login_office,
         ];
     }
 }

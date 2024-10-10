@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class TimesheetEntryProject extends Model 
+class Resume extends Model
 {
     use HasFactory;
 
@@ -17,19 +17,16 @@ class TimesheetEntryProject extends Model
      * @var array
      */
     protected $fillable = [ 
-        'timesheet_entry_id',
-        'project_id',
-        'work_duration',
+        'user_id',
+        'pseudo',
+        'description',
+        'content',
+        'content_en'
     ];
 
-    public function timesheetEntry()
+    public function candidat()
     {
-        return $this->belongsTo(TimesheetEntry::class);
-    }
-
-    public function project()
-    {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(Candidat::class);
     }
 
 }

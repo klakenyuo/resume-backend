@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CandidatResource; 
 use App\Http\Resources\EtapeResource; 
 use App\Models\Candidat;
+use App\Models\Offer;
 use App\Models\Entreprise;
 use App\Models\Etape;
 use Illuminate\Support\Facades\Auth;
@@ -107,7 +108,7 @@ class CandidatController extends Controller
             'status_ano' => $request['status_ano'] ?? "",
             'status' => $request['status'] ?? "",
             'comment' => $request['comment'] ?? "",
-            'etape_id' => $request['etape_id'] ?? "",
+            'etape_id' => $request['etape_id'] ?? 1,
             'statut_matrimonial' => $request['statut_matrimonial'] ?? "",
             'annee_experience' => $request['annee_experience'] ?? "",
             'expertise_technique' => $request['expertise_technique'] ?? "",
@@ -222,33 +223,22 @@ class CandidatController extends Controller
 
         $etapes  = $request->etapes;
 
+        $type_contrat = $request->type_contrat;
+
+        $min_exp = $request->min_exp;
+
+        $max_exp = $request->max_exp;
+
         if(!$etapes){
            $etapes  = Etape::pluck('id');
         }
 
-        if($search==''){
-            $entreprises = Candidat::Where(function($query) use ($etapes){
-                $query->whereIn('etape_id', $etapes);
-            })->paginate(10);
-        }else{
-            // $entreprises = Candidat::where(function($query) use ($etapes){
-            //     $query->whereIn('etape_id', $etapes);
-            // })
-            // ->orWhere('first_name', 'like', '%'.$search.'%')
-            // ->orWhere('last_name', 'like', '%'.$search.'%')
-            // ->orWhere('telephone', 'like', '%'.$search.'%')
-            // ->orWhere('telephone_s', 'like', '%'.$search.'%')
-            // ->orWhere('adress', 'like', '%'.$search.'%')
-            // ->orWhere('email', 'like', '%'.$search.'%')
-            // ->orWhere('email_s', 'like', '%'.$search.'%')
-            // ->orWhere('city', 'like', '%'.$search.'%')
-            // ->orWhere('country', 'like', '%'.$search.'%')
-            // ->orWhere('last_situation', 'like', '%'.$search.'%')
-            // // or where etape_id in etapes
-            // ->paginate(10);
+        $candidats = Candidat::Where(function($query) use ($etapes){
+            $query->whereIn('etape_id', $etapes);
+        });
 
-            $entreprises = Candidat::whereIn('etape_id', $etapes)
-            ->where(function($query) use ($search) {
+        if($search!=''){
+            $candidats = $candidats->where(function($query) use ($search) {
                 $query->orWhere('first_name', 'like', '%'.$search.'%')
                     ->orWhere('last_name', 'like', '%'.$search.'%')
                     ->orWhere('telephone', 'like', '%'.$search.'%')
@@ -259,12 +249,46 @@ class CandidatController extends Controller
                     ->orWhere('city', 'like', '%'.$search.'%')
                     ->orWhere('country', 'like', '%'.$search.'%')
                     ->orWhere('last_situation', 'like', '%'.$search.'%');
-            })
-            ->paginate(10);
+            });
         }
 
+        if($type_contrat!=''){
+            $candidats = $candidats->where('contrat_type', $type_contrat);
+        }
+
+        if($min_exp!=''){
+            $candidats = $candidats->where('annee_experience', '>=', $min_exp);
+        }
+
+        if($max_exp!=''){
+            $candidats = $candidats->where('annee_experience', '<=', $max_exp);
+        }
+
+        // if($search==''){
+        //     $candidats = Candidat::Where(function($query) use ($etapes){
+        //         $query->whereIn('etape_id', $etapes);
+        //     })->paginate(10);
+        // }else{
+        //     $candidats = Candidat::whereIn('etape_id', $etapes)
+        //     ->where(function($query) use ($search) {
+        //         $query->orWhere('first_name', 'like', '%'.$search.'%')
+        //             ->orWhere('last_name', 'like', '%'.$search.'%')
+        //             ->orWhere('telephone', 'like', '%'.$search.'%')
+        //             ->orWhere('telephone_s', 'like', '%'.$search.'%')
+        //             ->orWhere('adress', 'like', '%'.$search.'%')
+        //             ->orWhere('email', 'like', '%'.$search.'%')
+        //             ->orWhere('email_s', 'like', '%'.$search.'%')
+        //             ->orWhere('city', 'like', '%'.$search.'%')
+        //             ->orWhere('country', 'like', '%'.$search.'%')
+        //             ->orWhere('last_situation', 'like', '%'.$search.'%');
+        //     })
+        //     ->paginate(10);
+        // }
+
+        $candidats = $candidats->paginate(10);
+
         // return $etapes;
-        return CandidatResource::collection($entreprises);
+        return CandidatResource::collection($candidats);
     }
 
     // getAllEtapes
@@ -274,5 +298,43 @@ class CandidatController extends Controller
         return EtapeResource::collection($etapes);
     }
 
+    public function get_candidats_by_offer($offer_id){
+        $offer = Offer::find($offer_id);
+
+        if(!$offer){
+            return response()->json(array('message' => __("Offre introuvable")), 404);
+        }
+
+        $exp_years = $offer->experience_years;
+
+        $category = $offer->category;
+
+        $industry = $offer->industry;
+
+        $candidats = Candidat::where('annee_experience','>=',$exp_years)
+            ->orWhere('certifications', 'like', '%'.$industry.'%')
+            ->orWhere('expertise_technique', 'like', '%'.$industry.'%')
+            ->orWhere('etl', 'like', '%'.$industry.'%')
+            ->orWhere('gestion_projet', 'like', '%'.$industry.'%')
+            ->orWhere('certifications', 'like', '%'.$category.'%')
+            ->orWhere('expertise_technique', 'like', '%'.$category.'%')
+            ->orWhere('etl', 'like', '%'.$category.'%')
+            ->orWhere('gestion_projet', 'like', '%'.$category.'%')
+            ->paginate(10);
+
+        return CandidatResource::collection($candidats);
+
+        // expertise_technique, certifications, etl, gestion_projet
+
+
+    }
+
+    public function show($id){
+        $candidat = Candidat::find($id);
+        if(!$candidat){
+            return response()->json(array('message' => __("Candidat introuvable")), 404);
+        }
+        return new CandidatResource($candidat);
+    }
 
 }

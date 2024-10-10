@@ -18,7 +18,8 @@ class ProfilResource extends JsonResource
             'title' => $this->title,
             'linkedin' => $this->linkedin,
             'telephone' => $this->telephone,
-            'email' => $this->email,
+            'telephone_two' => $this->telephone_two,
+            'email_two' => $this->email_two,
             'website' => $this->website,
             'adress' => $this->adress,
             'city' => $this->city,
@@ -28,6 +29,9 @@ class ProfilResource extends JsonResource
             'photo' => $this->photo,
             'enrich_status' => $this->enrich_status,
             'can_enrich' => $this->can_enrich,
+            'tags'=>$this->tags,
+            'tags_labels'=>$this->tags_labels,
+            'is_enrich_cout'=>$this->is_enrich_cout,
         ];  
     }
 

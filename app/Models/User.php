@@ -46,6 +46,9 @@ class User extends Authenticatable implements HasMedia
         'society',
         'entry_date',
         'tjm',
+        'is_login_office',
+        'auth_code',
+        'refresh_token',
 
     ];
 

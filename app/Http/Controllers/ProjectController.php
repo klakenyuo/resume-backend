@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource; 
+use App\Http\Resources\ProjectResourceLite;
 use App\Models\Project;
 use App\Models\UserProject;
 use App\Models\Entreprise;
@@ -46,7 +47,7 @@ class ProjectController extends Controller
         $userProjects = UserProject::where('user_id', Auth::user()->id)->get();
         $projects = Project::whereIn('id', $userProjects->pluck('project_id'))->where('status', 'pending')->orderBy('id', 'desc')->paginate(10);
 
-        return ProjectResource::collection($projects);
+        return ProjectResourceLite::collection($projects);
     }
 
     // store

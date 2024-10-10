@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class TimesheetEntryProject extends Model 
+class Campaign extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -17,19 +17,23 @@ class TimesheetEntryProject extends Model
      * @var array
      */
     protected $fillable = [ 
-        'timesheet_entry_id',
-        'project_id',
-        'work_duration',
+        'title',
+        'user_id',
+        'subject',
+        'tags',
+        'content',
+        'files',
+        'status',  
+        'sent_at',
     ];
 
-    public function timesheetEntry()
+    public function user()
     {
-        return $this->belongsTo(TimesheetEntry::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function project()
-    {
-        return $this->belongsTo(Project::class);
-    }
+    // attachments
+
+     
 
 }

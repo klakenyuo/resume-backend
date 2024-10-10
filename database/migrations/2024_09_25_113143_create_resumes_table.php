@@ -13,11 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('permissions', function (Blueprint $table) {
+        Schema::create('resumes', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-           
-            $table->string('description')->nullable();
+            $table->string('pseudo');
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('candidat_id');
+            $table->foreign('candidat_id')->references('id')->on('candidats')->onDelete('cascade');
+            $table->json('content')->nullable();
+            $table->json('content_en')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('resumes');
     }
 };

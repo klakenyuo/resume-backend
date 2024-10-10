@@ -4,15 +4,14 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProjectResourceLite extends JsonResource
+class ProfilTagResource extends JsonResource
 {   
     public function toArray($request)
     {
         return [  
             'id' => $this->id,
-            'title' => $this->title,
-            'client' => $this->client,
-            'status' => $this->status,
+            'name' => $this->name,
+            'color' => $this->color,
         ];  
     }
 

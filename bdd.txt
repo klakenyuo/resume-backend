@@ -33,7 +33,11 @@ projects(id,title,description,client,status)
 timesheets(id,user_id,project_id,status,comment,month,year)
 timesheet_entries(id,timesheet_id,date,work_duration)
 
+resume(id,candidat_id,pseudo,description,content,content_en)
+
 role list = admin,candidat,recruiters
+groups(id,name,color,user_id)
+group_profil(id,group_id,profil_id)
 
 
 

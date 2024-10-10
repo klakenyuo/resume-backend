@@ -19,6 +19,9 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+// Log laravel
+use Illuminate\Support\Facades\Log;
+
  
 class TimesheetController extends Controller
 {
@@ -88,8 +91,53 @@ class TimesheetController extends Controller
             return response()->json(['message' => 'Timesheet introuvable'], Response::HTTP_NOT_FOUND);
         }
 
+        $this->update_timesheet($timesheet);
+        
+        $timesheet = Timesheet::find($id);
+
         return new TimesheetFullResource($timesheet);
     }
+
+     // update the timesheet
+     public function update_timesheet($timesheet)
+     {
+        //laravel log 
+        Log::info('update_timesheet');
+
+       $timesheet_id = $timesheet->id;
+       $user_id = $timesheet->user_id;
+       $timesheet = Timesheet::find($timesheet_id);
+       $month = $timesheet->month;
+       $year = $timesheet->year;
+       $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+ 
+       if($timesheet){
+        $projects = $timesheet->user->projects;
+        $entries = $timesheet->timesheetEntries;
+
+        foreach($entries as $entry){
+
+            foreach($projects as $project){
+                // get entry project where timesheet entry id $timesheetEntry->id and project id $project->id
+                $timesheetEntryProject = TimesheetEntryProject::where('timesheet_entry_id', $entry->id)->where('project_id', $project->id)->first();
+                if(!$timesheetEntryProject){
+                    // log project not exist
+                    Log::info('project not exist '.$entry->id.' and project : '.$project->id);
+                    $timesheetEntryProject = new TimesheetEntryProject();
+                    $timesheetEntryProject->timesheet_entry_id = $entry->id;
+                    $timesheetEntryProject->project_id = $project->id;
+                    $timesheetEntryProject->work_duration = 0;
+                    $timesheetEntryProject->save();
+                }else{
+                    // log project already exist
+                    Log::info('project already exist '.$entry->id.' and project : '.$project->id);
+                }
+            }
+        } 
+       }
+       return true;
+    }
+ 
 
     // store
     public function store(Request $request)

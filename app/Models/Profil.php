@@ -34,6 +34,10 @@ class Profil extends Model implements HasMedia
         'postal_code',
         'about',
         'enrich_status',
+        'tags',
+        'kaspr_data',
+        'cout_data',
+        'is_enrich_cout',
     ];
 
     public function entreprise()
@@ -42,7 +46,18 @@ class Profil extends Model implements HasMedia
     }
 
     // append photo
-    protected $appends = ['photo','can_enrich'];
+    protected $appends = ['photo','can_enrich','tags_labels'];
+
+    // 
+    public function getTagsLabelsAttribute()
+    {
+        $tags = $this->tags;
+        if(!$tags){
+            return [];
+        }
+        $tags = json_decode($tags);
+        return $tags;
+    }
 
     public function getPhotoAttribute()
     {

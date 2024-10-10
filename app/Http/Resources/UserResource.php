@@ -38,6 +38,7 @@ class UserResource extends JsonResource
             'tjm' => $this->tjm,
             'permissions' =>  PermissionResource::collection($this->permissions) ,
             'permissions_name' => $this->get_permissions_name() ,
+            'is_login_office' => $this->is_login_office,
         ];
     }
 

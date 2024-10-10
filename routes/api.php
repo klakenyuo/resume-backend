@@ -9,6 +9,7 @@ use App\Http\Controllers\UserExperienceController;
 use App\Http\Controllers\UserMetaController;
 use App\Http\Controllers\EntrepriseController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
@@ -16,6 +17,8 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\CandidatController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TimesheetController;
+use App\Http\Controllers\Office365MailController;
+use App\Http\Controllers\ResumeController;
 
 
 /*
@@ -108,6 +111,15 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
     Route::get('export-entreprises', [EntrepriseController::class, 'export']);
     Route::post('search-entreprises', [EntrepriseController::class, 'search']);
 
+    // crud campaign
+    Route::get('campaigns', [CampaignController::class, 'index']);
+    Route::post('campaigns', [CampaignController::class, 'store']);
+    Route::post('update-campaigns/{id}', [CampaignController::class, 'update']);
+    Route::delete('campaigns/{id}', [CampaignController::class, 'destroy']);
+    Route::post('search-campaigns', [CampaignController::class, 'search']);
+    // lauch campaign
+    Route::post('campaigns/{id}/launch', [CampaignController::class, 'launch']);
+
     // crud profils
     Route::get('profils', [ProfilController::class, 'index']);
     Route::post('profils', [ProfilController::class, 'store']);
@@ -115,6 +127,15 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
     Route::delete('profils/{id}', [ProfilController::class, 'destroy']);
     Route::get('export-profils', [ProfilController::class, 'export']);
     Route::post('search-profils', [ProfilController::class, 'search']);
+
+    // get profils by tags
+    Route::get('profils-by-tag/{tag}', [ProfilController::class, 'getProfilsByTags']);
+
+    // crud profil tags
+    Route::get('profil-tags', [ProfilController::class, 'getTags']);
+    Route::post('profil-tags', [ProfilController::class, 'createTag']);
+    Route::post('update-profil-tags/{id}', [ProfilController::class, 'updateTag']);
+    Route::delete('profil-tags/{id}', [ProfilController::class, 'deleteTag']);
 
     // crud clients
     Route::get('clients', [ClientController::class, 'index']);
@@ -126,10 +147,14 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
 
     // crud candidats
     Route::get('candidats', [CandidatController::class, 'index']);
+    Route::get('candidats/{id}', [CandidatController::class, 'show']);
     Route::post('candidats', [CandidatController::class, 'store']);
     Route::post('update-candidats/{id}', [CandidatController::class, 'update']);
     Route::delete('candidats/{id}', [CandidatController::class, 'destroy']);
     Route::post('search-candidats', [CandidatController::class, 'search']);
+    // get_candidats_by_offer
+    Route::get('get-candidats-by-offer/{id}', [CandidatController::class, 'get_candidats_by_offer']);
+
 
     // crud projects
     Route::get('projects', [ProjectController::class, 'index']);
@@ -186,8 +211,21 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
     // enrich - profil
     // Route::get('enrich-profils', [ProfilController::class, 'enrichProfils']);
     Route::get('enrich-profil/{id}', [ProfilController::class, 'enrichProfil']);
+    Route::get('enrich-profil-cout/{id}', [ProfilController::class, 'enrichProfilWithContactOut']);
 
+    Route::get('/microsoft-auth/redirect', [Office365MailController::class, 'redirectToProvider']);
+    Route::post('/microsoft-auth/callback', [Office365MailController::class, 'handleProviderCallback']);
+    Route::get('/mails', [Office365MailController::class, 'getMails']);
+    Route::post('/send-mail', [Office365MailController::class, 'sendMail']);
 
+    // resumes
+    Route::get('resumes', [ResumeController::class, 'index']);
+    Route::post('resumes', [ResumeController::class, 'store']);
+    Route::get('resumes/{id}', [ResumeController::class, 'show']);
+    Route::post('resumes/{id}', [ResumeController::class, 'update']);
+    Route::delete('resumes/{id}', [ResumeController::class, 'destroy']);  
+    Route::post('resumes/search', [ResumeController::class, 'search']);
+    Route::get('resumes/candidat/{id}', [ResumeController::class, 'getResumeByCandidatId']);
 
 
 });
