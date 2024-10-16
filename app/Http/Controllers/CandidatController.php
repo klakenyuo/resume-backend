@@ -77,6 +77,9 @@ class CandidatController extends Controller
             'pretentions_salariales' => 'nullable|string|max:255',
             'certifications' => 'nullable|string|max:255',
             'gestion_projet' => 'nullable|string|max:255',
+            'date_naissance'=>'nullable',
+            'preference_localisation'=>'nullable',
+            'poste_actuel'=>'nullable',
         ], $this->customMessages);
         
         $errors = $validator->errors();
@@ -118,6 +121,9 @@ class CandidatController extends Controller
             'pretentions_salariales' => $request['pretentions_salariales'] ?? "",
             'certifications' => $request['certifications'] ?? "",
             'gestion_projet' => $request['gestion_projet'] ?? "",
+            'date_naissance'=>$request['date_naissance'] ?? "",
+            'preference_localisation'=>$request['preference_localisation'] ?? "",
+            'poste_actuel'=>$request['poste_actuel'] ?? "",
         ]);
 
         // if photo add photo to media 
@@ -176,6 +182,9 @@ class CandidatController extends Controller
             'pretentions_salariales' => 'nullable|string|max:255',
             'certifications' => 'nullable|string|max:255',
             'gestion_projet' => 'nullable|string|max:255',
+            'date_naissance'=>'nullable',
+            'preference_localisation'=>'nullable',
+            'poste_actuel'=>'nullable',
         ], $this->customMessages);
         
         $errors = $validator->errors();

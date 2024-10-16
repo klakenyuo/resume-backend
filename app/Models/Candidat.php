@@ -48,6 +48,9 @@ class Candidat extends Model implements HasMedia
         'pretentions_salariales',
         'certifications',
         'gestion_projet',
+        'date_naissance',
+        'preference_localisation',
+        'poste_actuel',
     ];
 
     // append photo
