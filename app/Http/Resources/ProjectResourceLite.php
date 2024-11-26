@@ -13,6 +13,7 @@ class ProjectResourceLite extends JsonResource
             'title' => $this->title,
             'client' => $this->client,
             'status' => $this->status,
+            'is_paid' => $this->is_paid,
         ];  
     }
 

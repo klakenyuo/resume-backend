@@ -18,6 +18,18 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+                'message' => 'You must log in to access this resource.',
+            ], 401);
+        }
+
+        return parent::render($request, $exception);
+    }
+
     /**
      * Register the exception handling callbacks for the application.
      */

@@ -203,6 +203,8 @@ class CandidatController extends Controller
 
         // if resume add resume to media
         if($request->hasFile('resume')){
+            // remove old resume
+            $candidat->media()->where('collection_name', 'resume')->delete();
             $candidat->addMedia($request->file('resume'))->toMediaCollection('resume');
         }
 

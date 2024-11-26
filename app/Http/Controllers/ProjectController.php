@@ -58,6 +58,7 @@ class ProjectController extends Controller
             'description' => 'required|string|max:255',
             'client' => 'required|string|max:255',
             'status' => 'required|string|max:255',
+            'is_paid' => 'required|boolean',
         ], $this->customMessages);
         
         $errors = $validator->errors();
@@ -70,6 +71,7 @@ class ProjectController extends Controller
             'description' => $request['description'],
             'client' => $request['client'],
             'status' => $request['status'],
+            'is_paid' => $request['is_paid'],
         ]);
         
         $project->save();
@@ -91,6 +93,7 @@ class ProjectController extends Controller
             'client' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'users' => 'nullable|string',
+            'is_paid' => 'required|boolean',
         ], $this->customMessages);
         
         $errors = $validator->errors();

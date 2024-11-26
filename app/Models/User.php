@@ -49,7 +49,7 @@ class User extends Authenticatable implements HasMedia
         'is_login_office',
         'auth_code',
         'refresh_token',
-
+        'color',
     ];
 
     protected $appends = ['photo','photoImg'];
@@ -159,6 +159,39 @@ class User extends Authenticatable implements HasMedia
     {
         return Permission::where('name', 'timesheet')->get();
     }
+
+    public function get_colors(){
+        $colors = array(
+            "#9A7B0C",
+            "#8B0000",
+            "#1D2951",
+            "#0B3D0B",
+            "#8B4500",
+            "#4E342E",
+            "#4B0082",
+        );
+        return $colors;
+    }
+
+    public function my_color(){
+        $user_color = $this->color;
+        if(!$user_color){
+            $user_color = $this->get_colors()[mt_rand(0, count($this->get_colors()) - 1)];
+            $this->color = $user_color;
+            $this->save();
+        }
+        return $user_color;
+    }
      
+    public function my_initials(){
+
+       $first_name = $this->first_name;
+       $last_name = $this->last_name;
+       $initials =  $first_name[0].$last_name[0];
+
+        // return uppercase initials
+       return strtoupper($initials);
+
+    }
  
 }

@@ -21,6 +21,8 @@ class UserResourceLite extends JsonResource
             'isActive' => $this->isActive,
             'projects'=> ProjectResourceLite::collection($this->projects),
             'is_login_office' => $this->is_login_office,
+            'color'=>$this->my_color(),
+            'initials'=>$this->my_initials(),
         ];
     }
 }

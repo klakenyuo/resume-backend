@@ -1,23 +1,46 @@
+# Ignore les fichiers générés par Composer
 /vendor/
-node_modules/
-npm-debug.log
-yarn-error.log
 
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
+# Ignore les fichiers et dossiers liés à Node.js
+/node_modules/
 
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-
-# Laravel 5 & Lumen specific with changed public path
-public_html/storage
-public_html/hot
-
-storage/*.key
+# Ignore les fichiers et dossiers liés à l'environnement
 .env
-Homestead.yaml
-Homestead.json
-/.vagrant
+.env.*.backup
+
+# Ignore les fichiers de cache et logs
+/storage/*.key
+/storage/*.log
+/storage/*.csv
+/storage/*.cache
+/storage/debugbar/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*
+!storage/.gitignore
+!bootstrap/cache/.gitignore
+
+# Ignore le contenu du dossier public/assets
+/public/assets/*
+!/public/assets/.gitignore
+
+# Ignore les fichiers de test et de débogage
 .phpunit.result.cache
+
+# Ignore les fichiers liés à l'IDE
+.idea
+.vscode
+*.sublime-workspace
+*.sublime-project
+
+# Ignore les fichiers de configuration système
+.DS_Store
+Thumbs.db
+
+# Ignore les fichiers de déploiement
+Homestead.json
+Homestead.yaml
+.vagrant/

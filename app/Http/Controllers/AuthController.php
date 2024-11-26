@@ -72,6 +72,8 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
+            $user->my_color();
+            $user =Auth::user();
             return new UserResource($user);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Token invalide'], 401);

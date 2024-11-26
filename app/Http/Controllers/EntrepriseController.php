@@ -32,7 +32,7 @@ class EntrepriseController extends Controller
     {
         // $entreprises = Entreprise::paginate(10);
         // get entreprises ordered by id desc
-        $entreprises = Entreprise::orderBy('id', 'desc')->paginate(10);
+        $entreprises = Entreprise::orderBy('name', 'asc')->paginate(10);
         return EntrepriseResource::collection($entreprises);
     }
 

@@ -73,7 +73,6 @@ class TimesheetController extends Controller
         return TimesheetResource::collection($timesheets);
     }
 
-
     // admin get all timesheets
     public function all(Request $request)
     {

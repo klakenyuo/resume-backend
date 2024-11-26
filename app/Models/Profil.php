@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Tags\HasTags;
 class Profil extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, HasTags;
 
     /**
      * The attributes that are mass assignable.
@@ -51,12 +52,20 @@ class Profil extends Model implements HasMedia
     // 
     public function getTagsLabelsAttribute()
     {
-        $tags = $this->tags;
-        if(!$tags){
-            return [];
+        // $tags = $this->tags;
+        // if(!$tags){
+        //     return [];
+        // }
+        // $tags = json_decode($tags);
+        // return $tags;
+
+        $tags = $this->tags()->get();
+        // return $tags;
+        $return = [];
+        foreach ($tags as $tag) {
+            $return[] = $tag->name;
         }
-        $tags = json_decode($tags);
-        return $tags;
+        return $return;
     }
 
     public function getPhotoAttribute()

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Project extends Model 
+class Alert extends Model  
 {
     use HasFactory;
 
@@ -19,14 +19,16 @@ class Project extends Model
     protected $fillable = [ 
         'title',
         'description',
-        'client',
+        'limit_date',
+        'limit_time',
         'status',
-        'is_paid',
+        'user_id',
     ];
 
-    public function users()
+    public function user()
     {
-        return $this->belongsToMany(User::class, 'user_projects', 'project_id', 'user_id');
+        return $this->belongsTo(User::class);
     }
 
+     
 }

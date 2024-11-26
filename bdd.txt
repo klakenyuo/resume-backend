@@ -39,6 +39,8 @@ role list = admin,candidat,recruiters
 groups(id,name,color,user_id)
 group_profil(id,group_id,profil_id)
 
+alerts(id,title,description,limit_date,limit_time,status,user_id) -- status // active,expired,unactive
+
 
 
 

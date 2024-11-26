@@ -47,6 +47,9 @@ class CandidatResource extends JsonResource
             'pretentions_salariales' =>  $this->pretentions_salariales == "null" || $this->pretentions_salariales == "[]" ? null : $this->pretentions_salariales,
             'certifications' => $this->certifications == "null" || $this->certifications == "[]" ? null : $this->certifications,
             'gestion_projet' =>      $this->gestion_projet == "null" || $this->gestion_projet == "[]" ? null : $this->gestion_projet,
+            'date_naissance' => $this->date_naissance,
+            'preference_localisation' => $this->preference_localisation,
+            'poste_actuel' => $this->poste_actuel,
         ];  
     }
  

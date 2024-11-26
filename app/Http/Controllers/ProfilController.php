@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Http;
+use \Spatie\Tags\Tag;
 
 // log facade
 use Illuminate\Support\Facades\Log; 
@@ -42,6 +43,12 @@ class ProfilController extends Controller
     {
         // get profils order by id desc paginated 10
         $profils = Profil::orderBy('id', 'desc')->paginate(10);
+
+        // foreach ($profils as $profil) {
+        //     $tags = $profil->tags_labels;
+        //     $profil->syncTagsWithType($tags, 'profil');
+        // }
+
         return ProfilResource::collection($profils);
     }
 
@@ -346,12 +353,16 @@ class ProfilController extends Controller
      {
          
         $profil = $request->data;
+        $keywords = $request->keywords ?? '';
 
 
         $name = $profil['name'];
         $profil_id = $profil['profileId'];
 
-        $exist = Profil::whereRaw('LOWER(CONCAT(first_name, " ", last_name)) = ?', [strtolower($name)])->where('profile_id', $profil_id)->first();
+
+
+        $exist = Profil::where('profile_id', $profil_id)->first();
+        // $exist = Profil::whereRaw('LOWER(CONCAT(first_name, " ", last_name)) = ?', [strtolower($name)])->where('profile_id', $profil_id)->first();
         
         if(!$exist){
             $name = explode(' ', $name);
@@ -360,12 +371,24 @@ class ProfilController extends Controller
 
             $last_name = substr($name, strlen($first_name) + 1);
 
+            $tag = ProfilTag::where('name', $keywords)->first();
+
+            if($tag){
+                $tags = $tag->name;
+            }else{
+                $tag = ProfilTag::create([
+                    'name' => $keywords,
+                    'color' => $this->get_random_color(),
+                ]);
+                $tags = $tag->name;
+            }
+
+            var_dump($tags);
+
             $headline = $profil['headline'] ?? '';
             $company = $profil['company'] ?? '';
             $location = $profil['location'] ?? '';
             $linkedinUrl = $profil['linkedinUrl'] ?? '';
-
-           
 
             $contact = Profil::create([
                 'first_name' => $first_name,
@@ -374,6 +397,7 @@ class ProfilController extends Controller
                 'title' => $headline,
                 'linkedin' => $linkedinUrl,
                 'profile_id' => $profil_id,
+                // 'tags' => '["'.$tags.'"]',
             ]);
 
             //  if photo
@@ -454,6 +478,7 @@ class ProfilController extends Controller
         }
         return response()->json(array('total_profils' => $total_profils,'total_entreprises'=>count($entreprises)), 200);
     }
+
     // enrich with contactout
     public function enrichProfilWithContactOut($id){
         $profil = Profil::find($id);
@@ -698,7 +723,7 @@ class ProfilController extends Controller
     public function createTag(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:10|unique:profil_tags,name',
+            'name' => 'required|string|max:10',
         ],  $this->customMessages);
 
         $errors = $validator->errors();
@@ -707,19 +732,17 @@ class ProfilController extends Controller
             return response()->json(array('message' => $errors->first(), 'data' => $errors), 422);
         }
 
-        $color = $this->get_random_color();
+        // $color = $this->get_random_color();
 
-        $tag = ProfilTag::create([
-            'name' => $request['name'],
-            'color' => $color,
-        ]);
+        $tag = Tag::findOrCreate($request['name'], 'profil');
 
         return response()->json(array('message' => __("Tag ajoutée"), 'data' => new ProfilTagResource($tag)), 201);
     }
     // get all tags
     public function getTags()
     {
-        $tags = ProfilTag::all();
+        $tags = Tag::getWithType('profil');
+        // return $tags;
         return ProfilTagResource::collection($tags);
     }
 
@@ -779,10 +802,7 @@ class ProfilController extends Controller
         $tag->delete();
 
         return response()->json(array('message' => __("Tag supprimée")), 200);
-    }
-        
-
-
+    } 
             
     public function verifyEmail($email) {
         // Get the domain of the email
@@ -841,19 +861,27 @@ class ProfilController extends Controller
         return false;
     }
 
-
     // getProfilsByTags
     public function getProfilsByTags($tag)
     {
-        $profils = Profil::where('tags', 'like', '%'.$tag.'%')->get();
+       $profils =  Profil::withAllTags([$tag], 'profil')->get();
+
+        // $profils = Profil::where('tags', 'like', '%'.$tag.'%')->get();
         return ProfilResource::collection($profils);
     }
 
-    
-    
-   
+    // detachTag
+    public function detachTag($id, $tag)
+    {
+        $profil = Profil::find($id);
+        if(!$profil){
+            return response()->json(array('message' => __("Profil introuvable")), 404);
+        }
 
+        $profil->detachTag($tag,'profil');
 
-    
+        return response()->json(array('message' => __("Tag détachée")), 200);
+    }
+ 
 
 }

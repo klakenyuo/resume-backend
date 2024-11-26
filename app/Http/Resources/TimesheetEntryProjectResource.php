@@ -14,7 +14,8 @@ class TimesheetEntryProjectResource extends JsonResource
             'work_duration' => $this->work_duration,
             'project' => New ProjectResourceLite($this->project),
             'timesheet_entry_id' => $this->timesheet_entry_id,
-            'can_effective' => $this->can_effective(),  
+            'can_effective' => $this->project->is_paid ? true : false,  
+            // 'can_effective' => $this->can_effective(),  
         ];  
     }
 

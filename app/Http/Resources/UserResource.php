@@ -39,6 +39,8 @@ class UserResource extends JsonResource
             'permissions' =>  PermissionResource::collection($this->permissions) ,
             'permissions_name' => $this->get_permissions_name() ,
             'is_login_office' => $this->is_login_office,
+            'color'=>$this->my_color(),
+            'initials'=>$this->my_initials(),
         ];
     }
 

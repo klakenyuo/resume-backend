@@ -19,6 +19,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TimesheetController;
 use App\Http\Controllers\Office365MailController;
 use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\AlertController;
 
 
 /*
@@ -130,6 +131,10 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
 
     // get profils by tags
     Route::get('profils-by-tag/{tag}', [ProfilController::class, 'getProfilsByTags']);
+    
+    // dettach tag for profil
+    Route::get('profils/{id}/tags/detach/{tag}', [ProfilController::class, 'detachTag']);
+
 
     // crud profil tags
     Route::get('profil-tags', [ProfilController::class, 'getTags']);
@@ -144,6 +149,14 @@ Route::group(["middleware" => 'auth:sanctum'],function() {
     Route::delete('clients/{id}', [ClientController::class, 'destroy']);
     // Route::get('export-clients', [ClientController::class, 'export']);
     Route::post('search-clients', [ClientController::class, 'search']);
+
+    // crud alerts
+    Route::get('alerts', [AlertController::class, 'index']);
+    Route::post('alerts', [AlertController::class, 'store']);
+    Route::get('alerts/{id}', [AlertController::class, 'show']);
+    Route::post('alerts/{id}', [AlertController::class, 'update']);
+    Route::delete('alerts/{id}', [AlertController::class, 'destroy']);
+    Route::post('alerts/search', [AlertController::class, 'search']);
 
     // crud candidats
     Route::get('candidats', [CandidatController::class, 'index']);

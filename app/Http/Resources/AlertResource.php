@@ -4,22 +4,20 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProjectResource extends JsonResource
+class AlertResource extends JsonResource
 {   
     public function toArray($request)
     {
         return [  
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'title' => $this->title,
             'description' => $this->description,
-            'client' => $this->client,
+            'limit_date' => $this->limit_date,
+            'limit_time' => $this->limit_time,
             'status' => $this->status,
-            'is_paid' => $this->is_paid ? 1 : 0,
-            'users' => UserResourceLite::collection($this->users),
+            'user_id' => $this->user_id,
+            // 'user'=> UserResourceLite::collection($this->user)
         ];  
     }
-
-
     
 }
